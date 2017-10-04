@@ -1,5 +1,5 @@
 import Dependencies._
-import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport.{dockerRepository, dockerUpdateLatest}
+  import com.typesafe.sbt.packager.docker.DockerPlugin.autoImport.{dockerRepository, dockerUpdateLatest}
 import com.typesafe.sbt.packager.docker.{Cmd, ExecCmd}
 
 enablePlugins(JavaAppPackaging)

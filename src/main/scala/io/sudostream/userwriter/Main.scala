@@ -1,15 +1,15 @@
 package io.sudostream.userwriter
 
-/**
+
 import akka.actor.ActorSystem
 import akka.event.Logging
 import akka.http.scaladsl.{Http, HttpConnectionContext}
 import com.softwaremill.macwire.wire
-import io.sudostream.schoolreader.api.http.HttpRoutes
-import io.sudostream.schoolreader.api.kafka.StreamingComponents
-import io.sudostream.schoolreader.config.{ActorSystemWrapper, ConfigHelper}
-import io.sudostream.schoolreader.dao._
-**/
+import io.sudostream.userwriter.api.http.HttpRoutes
+import io.sudostream.userwriter.api.kafka.StreamingComponents
+import io.sudostream.userwriter.config.{ActorSystemWrapper, ConfigHelper}
+import io.sudostream.userwriter.dao._
+
 
 // running in IDE
 // -Djavax.net.ssl.keyStore=/etc/ssl/cacerts
@@ -18,18 +18,17 @@ import io.sudostream.schoolreader.dao._
 
 object Main extends App {
 
-/**
+
   System.setProperty("javax.net.ssl.keyStore", "/etc/ssl/cacerts")
   System.setProperty("javax.net.ssl.trustStore", "/etc/ssl/cacerts")
 
   lazy val configHelper: ConfigHelper = wire[ConfigHelper]
   lazy val streamingComponents = wire[StreamingComponents]
-
   lazy val httpRoutes: HttpRoutes = wire[HttpRoutes]
   lazy val mongoDbConnectionWrapper: MongoDbConnectionWrapper = wire[MongoDbConnectionWrapperImpl]
-  lazy val schoolsDao: SchoolReaderDao = wire[MongoDbSchoolReaderDao]
+  lazy val userWriterDao: UserWriterDao = wire[MongoDbUserWriterDao]
   lazy val actorSystemWrapper: ActorSystemWrapper = wire[ActorSystemWrapper]
-  lazy val mongoFindQueries: MongoFindQueriesProxy = wire[MongoFindQueriesImpl]
+  lazy val mongoUserWriterProxy: MongoInserterProxy = wire[MongoInserterProxyImpl]
 
   implicit val theActorSystem: ActorSystem = actorSystemWrapper.system
   val logger = Logging(theActorSystem, getClass)
@@ -45,7 +44,7 @@ object Main extends App {
     val bindingFuture = Http().bindAndHandle(httpRoutes.routes, httpInterface, httpPort, HttpConnectionContext)
     logger.info(s"Listening on $httpInterface:$httpPort")
   }
-**/
+
 
 }
 
