@@ -9,7 +9,7 @@ enablePlugins(DockerPlugin)
 name := "user-writer"
 organization := "io.sudostream"
 scalaVersion := "2.11.8"
-version := "0.0.1-3"
+version := "0.0.1-4"
 
 //docker
 dockerBaseImage := "anapsix/alpine-java:8_server-jre"
