@@ -69,6 +69,6 @@ class HttpRoutes(userDao: UserWriterDao,
           }
         }
       }
-    }
+    } ~ health
 
 }
