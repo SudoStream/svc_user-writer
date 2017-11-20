@@ -57,7 +57,8 @@ class MongoInserterProxyImplTest extends FunSuite with MockitoSugar {
             country = Country.SCOTLAND
           )
         )
-      )
+      ),
+      userPreferences = None
     )
   }
 
