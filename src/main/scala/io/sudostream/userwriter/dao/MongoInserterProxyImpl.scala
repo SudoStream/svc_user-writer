@@ -1,7 +1,9 @@
 package io.sudostream.userwriter.dao
 
+import com.mongodb.client.model.UpdateOptions
 import io.sudostream.timetoteach.messages.systemwide.model.{User, UserPreferences}
 import org.mongodb.scala.bson.{BsonArray, BsonDocument, BsonString}
+import org.mongodb.scala.result.UpdateResult
 import org.mongodb.scala.{Completed, Document, MongoCollection}
 
 import scala.concurrent.Future
@@ -48,7 +50,16 @@ class MongoInserterProxyImpl(mongoDbConnectionWrapper: MongoDbConnectionWrapper)
     observable.toFuture()
   }
 
-  override def updateUserPreferences(tttUserId: String, newUserPreferences: UserPreferences) = ???
+  override def updateUserPreferences(tttUserId: String, newUserPreferences: UserPreferences): Future[UpdateResult] = {
+    val newUserPreferencesAsDocument = convertUserPreferencesToDocument(newUserPreferences)
+    val observable = usersCollection.updateOne(
+      BsonDocument("_id" -> BsonString(tttUserId)),
+      BsonDocument(
+        "$set" -> newUserPreferencesAsDocument
+      ),
+    )
+    observable.toFuture()
+  }
 
   private[dao] def convertUserToDocument(userToConvert: User): Document = {
 
@@ -134,7 +145,7 @@ class MongoInserterProxyImpl(mongoDbConnectionWrapper: MongoDbConnectionWrapper)
         schoolId = schoolTimes.schoolId
         taughtClass <- schoolTimes.userTeachesTheseClasses
         className = taughtClass.className
-      } yield schoolId  ->
+      } yield schoolId ->
         BsonDocument("className" -> BsonString(className),
           "curriculumLevels" -> schoolIdAndClassName_to_curriculumLevelsLists(schoolId + "-" + className)
         )

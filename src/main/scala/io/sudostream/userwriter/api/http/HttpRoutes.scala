@@ -86,7 +86,25 @@ class HttpRoutes(userDao: UserWriterDao,
                 userPreferencesDeserializer.deserialize("ignore", bytesAsArray)
             }
 
-            complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>YEP</h1>"))
+            val updateUserPreferencesEventualFuture = for {
+              theUserPreferences <- userPreferencesExtractedFuture
+              updateUserPreferencesFuture = userDao.updateUserPreferences(tttUserId, theUserPreferences)
+            } yield (updateUserPreferencesFuture, theUserPreferences)
+
+            val updateFutureCompleted = {
+              updateUserPreferencesEventualFuture map { tuple => tuple._1 }
+            }.flatMap(fut => fut)
+
+            onComplete(updateFutureCompleted) {
+              case Success(updateResult) =>
+                // TODO: To get here the user future must be completed and successful but my copmosing skills are lacking!
+                val theUserPreferences = userPreferencesExtractedFuture.value.get.get
+                logger.info(s"Deserialised user preferences: ${theUserPreferences.toString}")
+                complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, s"updateResult=${updateResult.toString}"))
+
+              case Failure(ex) => logger.error(s"Failed to deserialse user, ${ex.getMessage} : ${ex.getStackTrace.toString}")
+                complete(StatusCodes.InternalServerError, ex.getMessage)
+            }
           }
         }
       }
