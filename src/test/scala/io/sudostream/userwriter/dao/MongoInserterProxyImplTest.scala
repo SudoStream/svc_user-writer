@@ -2,10 +2,11 @@ package io.sudostream.userwriter.dao
 
 import java.util
 
+import io.sudostream.timetoteach.messages.scottish.ScottishCurriculumLevel
 import io.sudostream.timetoteach.messages.systemwide.model._
 import org.bson.BsonValue
 import org.mongodb.scala.Document
-import org.mongodb.scala.bson.{BsonArray, BsonBoolean, BsonString}
+import org.mongodb.scala.bson.{BsonArray, BsonBoolean, BsonDocument, BsonString}
 import org.scalatest.FunSuite
 import org.scalatest.mockito.MockitoSugar
 
@@ -25,6 +26,39 @@ class MongoInserterProxyImplTest extends FunSuite with MockitoSugar {
     println("-------------------")
     println(userDoc.toString())
     println("-------------------")
+  }
+
+  test("Test Convert UserPreferences To Document Happy path") {
+    val mongoInserterProxy = new MongoInserterProxyImpl(connectionWrapperMock)
+
+    val userPrefs: UserPreferences = createHappyPathUserPreferences()
+    val userPrefsDoc: Document = mongoInserterProxy.convertUserPreferencesToDocument(userPrefs)
+
+    println("-------------------------")
+    println("------ User Prefs -------")
+    println(userPrefsDoc.toString())
+    println("-------------------------")
+    println("-------------------------")
+
+
+    assert(userPrefsDoc.get[BsonArray]("allSchoolTimes").size == 1)
+  }
+
+  test("Happy test of convertListOfTuplesToMap") {
+    val listOfTuples: List[(String, BsonDocument)] = List(
+      ("apple",
+        BsonDocument("hello" -> BsonString("there"))),
+      ("apple",
+        BsonDocument("another" -> BsonString("apple"))),
+      ("banana",
+        BsonDocument("okay" -> BsonString("dokes")))
+    )
+
+    val mapNow = MongoInserterProxyImpl.convertListOfTuplesToMap(listOfTuples)
+
+    assert(mapNow.size == 2)
+    assert(mapNow("apple").size() == 2)
+    assert(mapNow("banana").size() == 1)
   }
 
   def createHappyPathUser(): User = {
@@ -61,5 +95,41 @@ class MongoInserterProxyImplTest extends FunSuite with MockitoSugar {
       userPreferences = None
     )
   }
+
+  def createHappyPathUserPreferences(): UserPreferences = {
+    UserPreferences(
+      allSchoolTimes = List(
+        SchoolTimes(
+          schoolId = "school123",
+          schoolStartTime = "09:00 AM",
+          morningBreakStartTime = "10:30 AM",
+          morningBreakEndTime = "10:45 AM",
+          lunchStartTime = "12:00 PM",
+          lunchEndTime = "01:00 PM",
+          schoolEndTime = "3:00 PM",
+          userTeachesTheseClasses = List(
+            SchoolClass(
+              className = "P1AB",
+              curriculumLevels = List(
+                CurriculumLevelWrapper(
+                  CurriculumLevel(
+                    country = Country.SCOTLAND,
+                    scottishCurriculumLevel = Some(ScottishCurriculumLevel.EARLY)
+                  )
+                ),
+                CurriculumLevelWrapper(
+                  CurriculumLevel(
+                    country = Country.SCOTLAND,
+                    scottishCurriculumLevel = Some(ScottishCurriculumLevel.FIRST)
+                  )
+                )
+              )
+            )
+          )
+        )
+      )
+    )
+  }
+
 
 }

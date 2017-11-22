@@ -3,7 +3,7 @@ package io.sudostream.userwriter.dao
 import akka.actor.ActorSystem
 import akka.event.LoggingAdapter
 import akka.stream.Materializer
-import io.sudostream.timetoteach.messages.systemwide.model.User
+import io.sudostream.timetoteach.messages.systemwide.model.{User, UserPreferences}
 import io.sudostream.userwriter.config.ActorSystemWrapper
 import org.mongodb.scala.Completed
 
@@ -33,5 +33,7 @@ class MongoDbUserWriterDao(mongoFindQueriesProxy: MongoInserterProxy,
 
     insertCompleted
   }
+
+  override def updateUserPreferences(tttUserId: String, newUserPreferences: UserPreferences): Future[Completed] = ???
 
 }

@@ -7,8 +7,8 @@ import akka.http.scaladsl.server.Directives.{path, _}
 import akka.http.scaladsl.server.Route
 import akka.stream.Materializer
 import akka.util.Timeout
-import io.sudostream.timetoteach.kafka.serializing.systemwide.model.UserDeserializer
-import io.sudostream.timetoteach.messages.systemwide.model.User
+import io.sudostream.timetoteach.kafka.serializing.systemwide.model.{UserDeserializer, UserPreferencesDeserializer}
+import io.sudostream.timetoteach.messages.systemwide.model.{User, UserPreferences}
 import io.sudostream.userwriter.api.kafka.StreamingComponents
 import io.sudostream.userwriter.config.ActorSystemWrapper
 import io.sudostream.userwriter.dao.UserWriterDao
@@ -66,6 +66,27 @@ class HttpRoutes(userDao: UserWriterDao,
               case Failure(ex) => logger.error(s"Failed to deserialse user, ${ex.getMessage} : ${ex.getStackTrace.toString}")
                 complete(StatusCodes.InternalServerError, ex.getMessage)
             }
+          }
+        }
+      }
+    } ~ path("api" / "users" / Segment / "editprefs") { (tttUserId) =>
+      post {
+        decodeRequest {
+          entity(as[HttpEntity]) { entity =>
+            val smallTimeout = 3000.millis
+            val dataFuture = entity.toStrict(smallTimeout) map {
+              httpEntity =>
+                httpEntity.getData()
+            }
+
+            val userPreferencesExtractedFuture: Future[UserPreferences] = dataFuture map {
+              databytes =>
+                val bytesAsArray = databytes.toArray
+                val userPreferencesDeserializer = new UserPreferencesDeserializer
+                userPreferencesDeserializer.deserialize("ignore", bytesAsArray)
+            }
+
+            complete(HttpEntity(ContentTypes.`text/html(UTF-8)`, "<h1>YEP</h1>"))
           }
         }
       }
