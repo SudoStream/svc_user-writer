@@ -1,6 +1,5 @@
 package io.sudostream.userwriter.dao
 
-import com.mongodb.client.model.UpdateOptions
 import io.sudostream.timetoteach.messages.systemwide.model.{User, UserPreferences}
 import org.mongodb.scala.bson.{BsonArray, BsonDocument, BsonString}
 import org.mongodb.scala.result.UpdateResult
@@ -56,8 +55,7 @@ class MongoInserterProxyImpl(mongoDbConnectionWrapper: MongoDbConnectionWrapper)
       BsonDocument("_id" -> BsonString(tttUserId)),
       BsonDocument(
         "$set" -> newUserPreferencesAsDocument
-      ),
-    )
+      ))
     observable.toFuture()
   }
 
