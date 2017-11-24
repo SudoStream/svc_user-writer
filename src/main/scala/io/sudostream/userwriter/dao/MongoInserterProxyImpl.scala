@@ -54,8 +54,11 @@ class MongoInserterProxyImpl(mongoDbConnectionWrapper: MongoDbConnectionWrapper)
     val observable = usersCollection.updateOne(
       BsonDocument("_id" -> BsonString(tttUserId)),
       BsonDocument(
-        "$set" -> newUserPreferencesAsDocument
-      ))
+        "$set" -> BsonDocument(
+          "userPreferences" -> newUserPreferencesAsDocument
+        )
+      )
+    )
     observable.toFuture()
   }
 
@@ -109,7 +112,8 @@ class MongoInserterProxyImpl(mongoDbConnectionWrapper: MongoDbConnectionWrapper)
       "imageUrl" -> userToConvert.imageUrl,
       "emails" -> emailsAsDocuments,
       "userRole" -> userToConvert.userRole.toString.toUpperCase,
-      "schools" -> schoolsAsDocuments
+      "schools" -> schoolsAsDocuments,
+      "userPreferences" -> BsonDocument()
     )
   }
 

@@ -102,7 +102,7 @@ class HttpRoutes(userDao: UserWriterDao,
                 logger.info(s"Deserialised user preferences: ${theUserPreferences.toString}")
                 complete(HttpEntity(ContentTypes.`text/plain(UTF-8)`, s"updateResult=${updateResult.toString}"))
 
-              case Failure(ex) => logger.error(s"Failed to deserialse user, ${ex.getMessage} : ${ex.getStackTrace.toString}")
+              case Failure(ex) => logger.error(s"Failed to deserialize user, ${ex.getMessage} : ${ex.getStackTrace.toString}")
                 complete(StatusCodes.InternalServerError, ex.getMessage)
             }
           }
