@@ -80,6 +80,10 @@ class MongoInserterProxyImplTest extends FunSuite with MockitoSugar {
         )
       ),
       userRole = UserRole.TEACHER,
+      userAccountCreated = UserAccountCreatedDetails(
+        dateSignedUp_Iso8601 = "2017-02-25",
+        timeSignedUp_Iso8601 = "19:07"
+      ),
       schools = List(
         SchoolWrapper(
           School(id = "school1234321",

@@ -112,6 +112,10 @@ class MongoInserterProxyImpl(mongoDbConnectionWrapper: MongoDbConnectionWrapper)
       "imageUrl" -> userToConvert.imageUrl,
       "emails" -> emailsAsDocuments,
       "userRole" -> userToConvert.userRole.toString.toUpperCase,
+      "userAccountCreated" -> Document(
+        "dateSignedUp_Iso8601" -> userToConvert.userAccountCreated.dateSignedUp_Iso8601,
+        "timeSignedUp_Iso8601" -> userToConvert.userAccountCreated.timeSignedUp_Iso8601
+      ),
       "schools" -> schoolsAsDocuments,
       "userPreferences" -> BsonDocument()
     )
