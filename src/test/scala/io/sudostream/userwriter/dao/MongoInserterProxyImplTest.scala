@@ -1,16 +1,11 @@
 package io.sudostream.userwriter.dao
 
-import java.util
-
 import io.sudostream.timetoteach.messages.scottish.ScottishCurriculumLevel
 import io.sudostream.timetoteach.messages.systemwide.model._
-import org.bson.BsonValue
 import org.mongodb.scala.Document
-import org.mongodb.scala.bson.{BsonArray, BsonBoolean, BsonDocument, BsonString}
+import org.mongodb.scala.bson.{BsonArray, BsonDocument, BsonString}
 import org.scalatest.FunSuite
 import org.scalatest.mockito.MockitoSugar
-
-import scala.collection.immutable
 
 class MongoInserterProxyImplTest extends FunSuite with MockitoSugar {
 
