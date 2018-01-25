@@ -1,6 +1,5 @@
 package io.sudostream.userwriter.dao
 
-import io.sudostream.timetoteach.messages.scottish.ScottishCurriculumLevel
 import io.sudostream.timetoteach.messages.systemwide.model._
 import org.mongodb.scala.Document
 import org.mongodb.scala.bson.{BsonArray, BsonDocument, BsonString}
@@ -105,26 +104,7 @@ class MongoInserterProxyImplTest extends FunSuite with MockitoSugar {
           morningBreakEndTime = "10:45 AM",
           lunchStartTime = "12:00 PM",
           lunchEndTime = "01:00 PM",
-          schoolEndTime = "3:00 PM",
-          userTeachesTheseClasses = List(
-            SchoolClass(
-              className = "P1AB",
-              curriculumLevels = List(
-                CurriculumLevelWrapper(
-                  CurriculumLevel(
-                    country = Country.SCOTLAND,
-                    scottishCurriculumLevel = Some(ScottishCurriculumLevel.EARLY)
-                  )
-                ),
-                CurriculumLevelWrapper(
-                  CurriculumLevel(
-                    country = Country.SCOTLAND,
-                    scottishCurriculumLevel = Some(ScottishCurriculumLevel.FIRST)
-                  )
-                )
-              )
-            )
-          )
+          schoolEndTime = "3:00 PM"
         )
       )
     )

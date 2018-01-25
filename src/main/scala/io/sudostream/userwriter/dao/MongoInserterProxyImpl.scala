@@ -5,6 +5,7 @@ import org.mongodb.scala.bson.{BsonArray, BsonDocument, BsonString}
 import org.mongodb.scala.result.UpdateResult
 import org.mongodb.scala.{Completed, Document, MongoCollection}
 
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.Future
 
 object MongoInserterProxyImpl {
@@ -38,8 +39,6 @@ object MongoInserterProxyImpl {
 }
 
 class MongoInserterProxyImpl(mongoDbConnectionWrapper: MongoDbConnectionWrapper) extends MongoInserterProxy {
-
-  import MongoInserterProxyImpl._
 
   val usersCollection: MongoCollection[Document] = mongoDbConnectionWrapper.getUsersCollection
 
@@ -122,44 +121,6 @@ class MongoInserterProxyImpl(mongoDbConnectionWrapper: MongoDbConnectionWrapper)
   }
 
   private[dao] def convertUserPreferencesToDocument(userPrefsToConvert: UserPreferences): Document = {
-    val schoolIdAndClassName_to_curriculumLevels: List[(String, BsonDocument)] =
-      for {
-        schoolTimes <- userPrefsToConvert.allSchoolTimes
-        schoolId = schoolTimes.schoolId
-        taughtClass <- schoolTimes.userTeachesTheseClasses
-        className = taughtClass.className
-        curriculumLevelWrapper <- taughtClass.curriculumLevels
-        curriculumLevel = curriculumLevelWrapper.curriculumLevel
-        country = curriculumLevel.country.toString.toUpperCase
-        scottishCurriculumLevel = curriculumLevel.scottishCurriculumLevel match {
-          case Some(level) => level.toString.toUpperCase
-          case None => null
-        }
-      } yield schoolId + "-" + className -> BsonDocument(
-        "curriculumLevel" -> BsonDocument(
-          "country" -> BsonString(country),
-          "scottishCurriculumLevel" -> BsonString(scottishCurriculumLevel)
-        )
-      )
-
-    val schoolIdAndClassName_to_curriculumLevelsLists: Map[String, BsonArray] =
-      convertListOfTuplesToMap(schoolIdAndClassName_to_curriculumLevels)
-
-    val schoolId_to_className: List[(String, BsonDocument)] =
-      for {
-        schoolTimes <- userPrefsToConvert.allSchoolTimes
-        schoolId = schoolTimes.schoolId
-        taughtClass <- schoolTimes.userTeachesTheseClasses
-        className = taughtClass.className
-      } yield schoolId ->
-        BsonDocument("className" -> BsonString(className),
-          "curriculumLevels" -> schoolIdAndClassName_to_curriculumLevelsLists(schoolId + "-" + className)
-        )
-
-    val schoolId_to_userTeachesTheseClasses: Map[String, BsonArray] = convertListOfTuplesToMap(schoolId_to_className)
-
-    println(s"\n\nschoolId_to_userTeachesTheseClasses :  ${schoolId_to_userTeachesTheseClasses.toString()}\n\n")
-
     val allSchoolTimesAsDocuments = for {
       schoolTimes <- userPrefsToConvert.allSchoolTimes
       schoolId = schoolTimes.schoolId
@@ -176,13 +137,23 @@ class MongoInserterProxyImpl(mongoDbConnectionWrapper: MongoDbConnectionWrapper)
       "morningBreakEndTime" -> BsonString(morningBreakEndTime),
       "lunchStartTime" -> BsonString(lunchStartTime),
       "lunchEndTime" -> BsonString(lunchEndTime),
-      "schoolEndTime" -> BsonString(schoolEndTime),
-      "userTeachesTheseClasses" -> schoolId_to_userTeachesTheseClasses(schoolId)
+      "schoolEndTime" -> BsonString(schoolEndTime)
     )
 
     Document(
       "allSchoolTimes" -> allSchoolTimesAsDocuments
     )
+  }
+
+  override def doesUserExist(matcher: BsonDocument): Future[Boolean] = {
+    val usersFoundResult = usersCollection.find(matcher).toFuture
+    usersFoundResult.map { usersFound =>
+      if (usersFound.nonEmpty) {
+        true
+      } else {
+        false
+      }
+    }
   }
 
 }
